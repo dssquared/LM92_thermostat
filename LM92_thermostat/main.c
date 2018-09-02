@@ -27,8 +27,8 @@ typedef uint8_t byte;
 #define PST_PORT        PORTB
 #define PST_DDR         DDRB
 #define PSTENABLEPIN    2
-#define UPPERTHRESHOLD  89.0
-#define LOWERTHRESHOLD  80.0
+#define UPPERTHRESHOLD  86.0
+#define LOWERTHRESHOLD  84.0
 
 
 //  ----- function prototypes  -----  //
@@ -57,6 +57,25 @@ int main(void)
 	
     while (1) 
     {
+		calculatedTemp = getFtemp();
+		integerTemp = (byte)calculatedTemp;
+		displayTemp(integerTemp, 'F');
+		//displayHeaterState();
+		if (calculatedTemp > UPPERTHRESHOLD && heaterOn)
+		{
+			turnHeaterOff();
+		}
+		if (calculatedTemp < LOWERTHRESHOLD && !heaterOn)
+		{
+			turnHeaterOn();
+		}
+		LCD_goto(0,1);
+		displayHeaterState();  // be aware displayHeaterState() will not clear LCD first, displayTemp() clears LCD first.
+		_delay_ms(260);
+		_delay_ms(260);
+		_delay_ms(262);
+		_delay_ms(262);
+		
     }  // end while(1)
 }  // end main()
 
@@ -102,14 +121,15 @@ void displayTemp(byte temp, char unit){
 	LCD_char(unit);
 }  // end displayTemp()
 
+// displayHeaterState() will display at current cursor position, or clear LCD to start at top left of LCD
 void displayHeaterState(){
 	
 	if (heaterOn)
 	{
-		LCD_clear();
+		//LCD_clear();
 		LCD_string("Heater is ON");
 	} else{
-		LCD_clear();
+		//LCD_clear();
 		LCD_string("Heater is OFF");
 	}
 	
